@@ -13,11 +13,11 @@ class Cart:
         self.distance += abs(self.direction)
     
     # change direction
-    def update_direction(self, dir):
+    def update_direction(self, dir):
         self.direction = dir
     
     # floor getter
-    def get_floor(self): return self.floor
+    def get_floor(self): return self.floor
     
     # direction getter
     def get_direction(self): return self.direction
@@ -44,6 +44,6 @@ class Request:
     # the current floor
     def get_target_floor(self, elevator):
         if elevator.get_floor() == self.c_floor: return t_floor
-        else return None
+        else: return None
         
     
