@@ -2,19 +2,24 @@ class Cart:
     # floor: int
     # direction: int; -1 -> down, 0 -> stationary, 1 -> up
     # distance: int; lifetime floor changes
+    # in_request: boolean; considered in request if the cart has not finished
+    #   both parts of a request
     def __init__(self, floor = 0):
         self.floor = floor
         self.state = 0
         self.distance = 0
+        self.in_request = False
     
     # run every system tick to update floor
     def update_position(self):
         self.floor += self.state
-        self.state += abs(self.state)
+        self.distance += abs(self.state)
+    
+    # change activity
+    def flip_in_request(self): self.in_request = not self.in_request
     
     # change direction
-    def update_state(self, dir):
-        self.state = dir
+    def update_state(self, dir): self.state = dir
     
     # floor getter
     def get_floor(self): return self.floor
@@ -24,6 +29,9 @@ class Cart:
     
     # distance getter
     def get_distance(self): return self.distance
+    
+    # in_request getter
+    def get_request_status(self): return self.in_request
     
 class Request:
     # c_floor: int; current floor (original request)
