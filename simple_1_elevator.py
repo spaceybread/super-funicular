@@ -5,7 +5,7 @@ from elevator import *
 
 lowest, highest = 0, 4
 # events = [None, Request(2, 1, 4), None, Request(3, 1, 4), None, None, Request(4, -1, 0)]
-events = [None, Request(2, 1, 4), None, None, None, None, None, None, None, None, Request(2, 1, 4), None, None, None, None, None, None, None, None, None]
+events = [None, Request(4, -1, 0), None, None, None, None, None, None, None, None, Request(2, 1, 4), None, None, None, None, None, None, None, None, None]
 elevator = Cart()
 
 # think of events as any command issued to the elevator from outside the elevator
@@ -18,21 +18,23 @@ assign_queue = []
 
 for event in events:
     print("Floor:", elevator.get_floor(), "| State:", elevator.get_state(), "| In Request:", elevator.get_request_status())
+    
+    # check if the cart is where it was going
+    if elevator.get_floor() == TARGET:
+        elevator.update_state(0)
+            
+        if not elevator.get_request_status() and len(assign_queue) > 0:
+            queue_req = elevator.get_requests()[assign_queue[-1]]
+            TARGET = queue_req.get_target_floor(elevator)
+            elevator.update_state(queue_req.get_initial_request()[1])
+            elevator.flip_in_request()
+            continue
+        elif len(assign_queue) > 0:
+            assign_queue.pop(0)
+            elevator.flip_in_request()
+        
     if event == None:
         # empty time step, move if required
-        if elevator.get_floor() == TARGET:
-            elevator.update_state(0)
-            
-            if not elevator.get_request_status() and len(assign_queue) > 0:
-                queue_req = elevator.get_requests()[assign_queue[-1]]
-                TARGET = queue_req.get_target_floor(elevator)
-                elevator.update_state(queue_req.get_initial_request()[1])
-                elevator.flip_in_request()
-                continue
-            elif len(assign_queue) > 0:
-                assign_queue.pop(0)
-                elevator.flip_in_request()
-            
         elevator.update_position()
         continue
     
