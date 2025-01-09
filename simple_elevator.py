@@ -34,16 +34,25 @@ for event in events:
     # if targets have been cleared and there are no more requests, relax
     if len(targets) == 0 and len(next_targets) == 0 and len(missed_dir_requests) == 0:
         elevator.set_state(0)
-
+    
+    # handle the swapping of sets and hash maps when current set of targets have been cleared
+    
+    # just move the elevator if it has to be moved when there's no event
     if event == None:
         elevator.update_position()
         continue
     
     floor, direction = event.get_initial_request()
     
+    # if the elevator is currently unassigned, assign it
     if elevator.get_status() == 0:
         targets.add(floor)
         elevator.set_state(direction)
         
         if floor in current_dir_requests: current_dir_requests[floor].append(event)
         else: current_dir_requests[floor] = [event]
+    
+    # handle requests that are made when the elevator is moving
+    # if they're in the same direction as current motion and and can be picked up, then pick up
+    # if they're in the other direction put it in the next prio queue
+    # if they're in the same direction as current moition but cannot be picked up, then put it in the last prio queue
