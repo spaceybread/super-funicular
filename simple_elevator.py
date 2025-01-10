@@ -1,5 +1,6 @@
 # me when I realise data structures exist
 from elevator import *
+import heapq as pq
 
 targets = set()
 next_targets = [] # prio queue for requests in opposite direction
@@ -7,7 +8,7 @@ missed_dir_requests = [] # prio queue for requests in the same direction but not
 
 current_dir_requests = {} # hash map with request objects
 
-lowest, highest = 0, 4
+LO, HI = 0, 4
 events = [None, Request(4, -1, 0), None, None, None, None, None, None, None, None, Request(2, 1, 4), None, None, None, None, None, None, None, None, None]
 elevator = Cart()
 
@@ -45,14 +46,90 @@ for event in events:
     floor, direction = event.get_initial_request()
     
     # if the elevator is currently unassigned, assign it
-    if elevator.get_status() == 0:
+    if elevator.get_state() == 0:
         targets.add(floor)
         elevator.set_state(direction)
         
         if floor in current_dir_requests: current_dir_requests[floor].append(event)
         else: current_dir_requests[floor] = [event]
     
-    # handle requests that are made when the elevator is moving
+ #   if elevator.get_state() == 1:
+ #       if direction == 1:
+ #           # matches direction
+ #
+ #           if floor > cur_floor:
+ #               # if it is feasible to stop at that floor, then add it to the targets
+ #               targets.add(floor)
+ #
+ #               if floor in current_dir_requests: current_dir_requests[floor].append(event)
+ #               else: current_dir_requests[floor] = [event]
+ #
+ #           else:
+ #               # this is the lowest priority
+ #               # prioritise the lowest floors first
+ #               pq.heappush(missed_dir_requests, (floor, event))
+ #
+ #       else:
+ #           # prioritise the highest floor first
+ #           pq.heappush(next_targets, (-1*floor, event))
+ #           # there's not much the elevator can do here except
+ #           # queue it for when it switches directions
+ #
+ #   if elevator.get_state() == -1:
+ #       if direction == -1:
+ #           # matches direction
+ #
+ #           if floor < cur_floor:
+ #               # if it is feasible to stop at that floor, then add it to the targets
+ #               targets.add(floor)
+ #
+ #               if floor in current_dir_requests: current_dir_requests[floor].append(event)
+ #               else: current_dir_requests[floor] = [event]
+ #
+ #           else:
+ #               # this is the lowest priority
+ #               # prioritise the lowest floors first
+ #               pq.heappush(missed_dir_requests, (-1*floor, event))
+ #
+ #       else:
+ #           # prioritise the highest floor first
+ #           pq.heappush(next_targets, (floor, event))
+ #           # there's not much the elevator can do here except
+ #           # queue it for when it switches directions
+    
+    if elevator.get_state() == direction:
+        if direction * floor > direction * cur_floor:
+            targets.add(floor)
+            if floor in current_dir_requests: current_dir_requests[floor].append(event)
+            else: current_dir_requests[floor] = [event]
+        else:
+            pq.heappush(missed_dir_requests, (direction * floor, event))
+    else:
+        pq.heappush(next_targets, (-1 * direction * floor, event))
+        
+    # handle requests that are made when the elevator is moving for each direction
     # if they're in the same direction as current motion and and can be picked up, then pick up
     # if they're in the other direction put it in the next prio queue
     # if they're in the same direction as current moition but cannot be picked up, then put it in the last prio queue
+    
+    if len(targets) == 0:
+        # time for a switch
+        if len(next_targets) > 0:
+            current_dir_requests.clear()
+            while next_targets:
+                _, req = pq.heappop(next_targets)
+                f, d = req.get_initial_request()
+                targets.add(f)
+                
+                if f in current_dir_requests: current_dir_requests[f].append(req)
+                else: current_dir_requests[f] = [req]
+            
+            next_targets = missed_dir_requests
+            missed_dir_requests = []
+            elevator.set_state(-1 * elevator.get_state())
+        
+        else:
+            if len(missed_dir_requests) > 0:
+                _, req = missed_dir_requests[0]
+                f, d = req.get_initial_request()
+                targets.add(f)

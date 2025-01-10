@@ -25,7 +25,7 @@ class Cart:
     def flip_in_request(self): self.in_request = not self.in_request
     
     # change direction
-    def update_state(self, dir): self.state = dir
+    def set_state(self, dir): self.state = dir
     
     # floor getter
     def get_floor(self): return self.floor
