@@ -2,6 +2,24 @@
 from elevator import *
 import heapq as pq
 
+def print_state(elevator, targets, next_targets, missed_dir_requests, current_dir_requests, event=None):
+    event_str = f"Event: {event}" if event else "Event: None"
+    
+    # elevator details
+    cur_floor = elevator.get_floor()
+    cur_state = elevator.get_state()
+    
+    print("\n=== ELEVATOR STATE ===")
+    print(f"Floor: {cur_floor} | State: {'Idle' if cur_state == 0 else 'Up' if cur_state == 1 else 'Down'}")
+    print(f"Targets: {sorted(targets)}")
+    print(f"Next Targets: {[x[1] for x in next_targets]}  # Sorted by priority")
+    print(f"Missed Requests: {[x[1] for x in missed_dir_requests]}  # Sorted by priority")
+    print(f"Current Direction Requests: {current_dir_requests}")
+    print(f"{event_str}")
+    print("======================\n")
+
+
+
 targets = set()
 next_targets = [] # prio queue for requests in opposite direction
 missed_dir_requests = [] # prio queue for requests in the same direction but not at an appropriate floor
@@ -9,7 +27,7 @@ missed_dir_requests = [] # prio queue for requests in the same direction but not
 current_dir_requests = {} # hash map with request objects
 
 LO, HI = 0, 4
-events = [None, Request(4, -1, 0), Request(2, 1, 3), None, None, None, None, None, None, None, Request(2, 1, 4), None, None, None, None, None, None, None, None, None, None, None, None]
+events = [None, Request(4, -1, 0), Request(2, 1, 3), None, None, None, None, None, None, None, Request(2, 1, 4), None, None, None, None, None]
 elevator = Cart()
 
 # for now, I'm assuming it takes negligible time to enter/exit a floor within a time step
@@ -45,8 +63,7 @@ for event in events:
     # just move the elevator if it has to be moved when there's no event
     if event == None:
         elevator.update_position()
-        print("Current floor:", cur_floor, "| Targets: ", targets, "| CDR: ", current_dir_requests)
-        print()
+        print_state(elevator, targets, next_targets, missed_dir_requests, current_dir_requests, event)
         continue
     
     floor, direction = event.get_initial_request()
@@ -151,5 +168,5 @@ for event in events:
                 elevator.set_state(0)
     
     elevator.update_position()
-    print("Current floor:", cur_floor, "| Targets: ", targets, "| CDR: ", current_dir_requests)
-    print()
+    print_state(elevator, targets, next_targets, missed_dir_requests, current_dir_requests, event)
+
