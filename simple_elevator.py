@@ -9,7 +9,7 @@ missed_dir_requests = [] # prio queue for requests in the same direction but not
 current_dir_requests = {} # hash map with request objects
 
 LO, HI = 0, 4
-events = [None, Request(4, -1, 0), None, None, None, None, None, None, None, None, Request(2, 1, 4), None, None, None, None, None, None, None, None, None]
+events = [None, Request(4, -1, 0), Request(2, 1, 3), None, None, None, None, None, None, None, Request(2, 1, 4), None, None, None, None, None, None, None, None, None, None, None, None]
 elevator = Cart()
 
 # for now, I'm assuming it takes negligible time to enter/exit a floor within a time step
@@ -18,19 +18,23 @@ elevator = Cart()
 
 for event in events:
     cur_floor = elevator.get_floor()
-    
     # if the current floor is one of the stops
     if cur_floor in targets:
         # do that stop
+        print("stopped here -> ", end="")
         targets.remove(cur_floor)
         
         # if this stop was part of a request's initial call
         if cur_floor in current_dir_requests:
             reqs = current_dir_requests.get(cur_floor)
             
+            if len(targets) == 0:
+                elevator.set_state(-1 * elevator.get_state())
             # add all the target floors
             for re in reqs:
                 targets.add(re.get_target_floor(elevator))
+            
+            current_dir_requests[cur_floor] = []
     
     # if targets have been cleared and there are no more requests, relax
     if len(targets) == 0 and len(next_targets) == 0 and len(missed_dir_requests) == 0:
@@ -41,6 +45,8 @@ for event in events:
     # just move the elevator if it has to be moved when there's no event
     if event == None:
         elevator.update_position()
+        print("Current floor:", cur_floor, "| Targets: ", targets, "| CDR: ", current_dir_requests)
+        print()
         continue
     
     floor, direction = event.get_initial_request()
@@ -48,7 +54,7 @@ for event in events:
     # if the elevator is currently unassigned, assign it
     if elevator.get_state() == 0:
         targets.add(floor)
-        elevator.set_state(direction)
+        elevator.set_state((floor - cur_floor) // abs(floor - cur_floor))
         
         if floor in current_dir_requests: current_dir_requests[floor].append(event)
         else: current_dir_requests[floor] = [event]
@@ -116,6 +122,8 @@ for event in events:
         # time for a switch
         if len(next_targets) > 0:
             current_dir_requests.clear()
+            highest = next_targets[0][1]
+            
             while next_targets:
                 _, req = pq.heappop(next_targets)
                 f, d = req.get_initial_request()
@@ -126,10 +134,22 @@ for event in events:
             
             next_targets = missed_dir_requests
             missed_dir_requests = []
-            elevator.set_state(-1 * elevator.get_state())
+            
+            hf, df = highest.get_initial_request()
+            elevator.set_state((hf - cur_floor) // abs(hf - cur_floor))
         
         else:
             if len(missed_dir_requests) > 0:
                 _, req = missed_dir_requests[0]
                 f, d = req.get_initial_request()
                 targets.add(f)
+                next_targets = missed_dir_requests
+                missed_dir_requests = []
+                elevator.set_state(-1 * elevator.get_state())
+                current_dir_requests.clear()
+            else:
+                elevator.set_state(0)
+    
+    elevator.update_position()
+    print("Current floor:", cur_floor, "| Targets: ", targets, "| CDR: ", current_dir_requests)
+    print()
