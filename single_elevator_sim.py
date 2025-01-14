@@ -2,9 +2,11 @@ from elevator import *
 import heapq as pq
 
 class Elevator_Simulator:
-    def __init__(self, LO, HI, events = []):
+    def __init__(self, name, LO, HI, events = []):
         self.LO, self.HI = LO, HI
         self.elevator = Cart()
+        
+        self.name = name
         
         self.targets = set()
         self.next_targets = [] # prio queue for requests in opposite direction
@@ -124,3 +126,7 @@ class Elevator_Simulator:
     
     def get_distance(self):
         return self.elevator.get_distance()
+    
+    # i dont want to add getters for each of the elevator interface functions
+    def get_elevator(self):
+        return self.elevator
