@@ -46,11 +46,12 @@ for event in events:
         if cur_floor in current_dir_requests:
             reqs = current_dir_requests.get(cur_floor)
             
-            if len(targets) == 0:
-                elevator.set_state(-1 * elevator.get_state())
             # add all the target floors
             for re in reqs:
                 targets.add(re.get_target_floor(elevator))
+            
+            if len(targets) == 0:
+                elevator.set_state(-1 * elevator.get_state())
             
             current_dir_requests[cur_floor] = []
     
@@ -65,6 +66,7 @@ for event in events:
                     f, d = req.get_initial_request()
                     if f != cur_floor:
                         targets.add(f)
+                        # this bug fix took days
                         if f in current_dir_requests: current_dir_requests[f].append(req)
                         else: current_dir_requests[f] = [req]
                     else:
