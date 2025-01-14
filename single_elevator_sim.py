@@ -2,12 +2,12 @@ from elevator import *
 import heapq as pq
 
 class Elevator_Simulator:
-    def __init__(self, name, LO, HI, events = []):
+    def __init__(self, name, LO, HI, events = [], debug = False):
         self.LO, self.HI = LO, HI
         self.elevator = Cart()
         
         self.name = name
-        
+        self.debug = debug
         self.targets = set()
         self.next_targets = [] # prio queue for requests in opposite direction
         self.missed_dir_requests = [] # prio queue for requests in the same direction but not at an appropriate floor
@@ -26,6 +26,14 @@ class Elevator_Simulator:
         self.event_idx += 1
         
         cur_floor = elevator.get_floor()
+        
+        if elevator.get_state() == -1:
+            if sorted(list(targets))[0] >= cur_floor:
+                elevator.set_state(1)
+        elif elevator.get_state() == 1:
+            if sorted(list(targets))[-1] <= cur_floor:
+                elevator.set_state(-1)
+        
         # if the current floor is one of the stops
         if cur_floor in targets:
             # do that stop
@@ -88,7 +96,7 @@ class Elevator_Simulator:
         # just move the elevator if it has to be moved when there's no event
         if event == None:
             elevator.update_position()
-            # print_state(elevator, targets, next_targets, missed_dir_requests, current_dir_requests, event)
+            if self.debug: self.print_state(elevator, targets, next_targets, missed_dir_requests, current_dir_requests, event)
             return elevator, targets, next_targets, missed_dir_requests, current_dir_requests
     
         floor, direction = event.get_initial_request()
@@ -121,8 +129,24 @@ class Elevator_Simulator:
         # if they're in the same direction as current moition but cannot be picked up, then put it in the last prio queue
     
         elevator.update_position()
+        if self.debug: self.print_state(elevator, targets, next_targets, missed_dir_requests, current_dir_requests, event)
         return elevator, targets, next_targets, missed_dir_requests, current_dir_requests
-
+    
+    def print_state(self, elevator, targets, next_targets, missed_dir_requests, current_dir_requests, event=None):
+        event_str = f"Event: {event}" if event else "Event: None"
+    
+        # elevator details
+        cur_floor = elevator.get_floor()
+        cur_state = elevator.get_state()
+    
+        print("\n=== ELEVATOR STATE ===")
+        print(f"Floor: {cur_floor} | State: {'Idle' if cur_state == 0 else 'Up' if cur_state == 1 else 'Down'}")
+        print(f"Targets: {sorted(targets)}")
+        print(f"Next Targets: {[x[1] for x in next_targets]}  # Sorted by priority")
+        print(f"Missed Requests: {[x[1] for x in missed_dir_requests]}  # Sorted by priority")
+        print(f"Current Direction Requests: {current_dir_requests}")
+        print(f"{event_str}")
+        print("======================\n")
     
     def get_distance(self):
         return self.elevator.get_distance()

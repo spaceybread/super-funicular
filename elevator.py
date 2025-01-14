@@ -70,6 +70,13 @@ class Request:
         if elevator.get_floor() == self.c_floor: return self.t_floor
         else: return None
     
+    def __lt__(self, other):
+        return self.c_floor < other.c_floor
+    
+    def __eq__(self, other):
+        if not isinstance(other, Request): return False
+        return self.c_floor == other.c_floor
+    
     def __str__(self):
         return f"Request floor: {self.c_floor}, Request direction: {self.direction}, Destination floor: {self.t_floor}"
         
