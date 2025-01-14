@@ -178,3 +178,4 @@ for event in events:
     elevator.update_position()
     print_state(elevator, targets, next_targets, missed_dir_requests, current_dir_requests, event)
 
+print(elevator.get_distance())
