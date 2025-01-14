@@ -69,5 +69,8 @@ class Request:
     def get_target_floor(self, elevator):
         if elevator.get_floor() == self.c_floor: return self.t_floor
         else: return None
+    
+    def __str__(self):
+        return f"Request floor: {self.c_floor}, Request direction: {self.direction}, Destination floor: {self.t_floor}"
         
     
