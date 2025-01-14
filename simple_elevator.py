@@ -27,7 +27,7 @@ missed_dir_requests = [] # prio queue for requests in the same direction but not
 current_dir_requests = {} # hash map with request objects
 
 LO, HI = 0, 4
-events = [None, Request(4, -1, 0), Request(2, 1, 3), None, None, None, None, None, None, None, Request(2, 1, 4), None, None, None, None, None]
+events = [None, Request(4, -1, 0), Request(2, 1, 3), None, None, None, None, None, None, None, Request(2, 1, 4), Request(0, 1, 2), None, None, None, None, None, None, None, None, None, None, None, None]
 elevator = Cart()
 
 # for now, I'm assuming it takes negligible time to enter/exit a floor within a time step
