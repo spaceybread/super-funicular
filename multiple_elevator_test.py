@@ -26,9 +26,9 @@ events_1 = gen_events_list(LO, HI)
 events_2 = gen_events_list(LO, HI)
 events_3 = gen_events_list(LO, HI)
 
-E1 = Elevator_Simulator("E1", LO, HI)
-E2 = Elevator_Simulator("E2", LO, HI)
-E3 = Elevator_Simulator("E3", LO, HI)
+E1 = Elevator_Simulator(LO, HI)
+E2 = Elevator_Simulator(LO, HI)
+E3 = Elevator_Simulator(LO, HI)
 
 elevators = [E1, E2, E3]
 

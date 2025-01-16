@@ -2,7 +2,7 @@ from elevator import *
 import heapq as pq
 
 class Elevator_Simulator:
-    def __init__(self, name, LO, HI, events = None, debug = False):
+    def __init__(self, LO, HI, events = None, debug = False):
         self.LO, self.HI = LO, HI
         self.elevator = Cart()
         
