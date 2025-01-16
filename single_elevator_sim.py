@@ -2,7 +2,7 @@ from elevator import *
 import heapq as pq
 
 class Elevator_Simulator:
-    def __init__(self, name, LO, HI, events = [], debug = False):
+    def __init__(self, name, LO, HI, events = None, debug = False):
         self.LO, self.HI = LO, HI
         self.elevator = Cart()
         
@@ -13,7 +13,7 @@ class Elevator_Simulator:
         self.missed_dir_requests = [] # prio queue for requests in the same direction but not at an appropriate floor
         self.current_dir_requests = {} # hash map with request objects
         
-        self.events = events
+        self.events = events if events is not None else []
         self.event_idx = 0
     
     def add_event(self, event = None): self.events.append(event)
