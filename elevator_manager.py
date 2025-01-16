@@ -15,22 +15,14 @@ class Elevator_Manager:
             elevator.step()
             
     def push_request(self, request):
-        floors, states = [], []
         c_floor, dir = request.get_initial_request()
-        
-        # build lists of all states and floors
-        for elevator in self.elevators:
-            ele = elevator.get_elevator()
-            floors.append(ele.get_floor())
-            states.append(ele.get_state())
-        
+
         best = 2**32 - 1 # some large value
         idx = -1
         scores = []
         
         for i in range(len(self.elevators)):
-            e_floor, e_state = floors[i], states[i]
-            scores.append(compute_score(e_floor, e_state, c_floor, dir))
+            scores.append(compute_score(self.elevators[i], c_floor, dir))
             
             if scores[-1] < best:
                 best = scores[-1]
@@ -40,6 +32,24 @@ class Elevator_Manager:
         return idx
         
     
-    def compute_score(self, e_floor, e_state, r_floor, r_dir):
+    def compute_score(self, elevator, r_floor, r_dir):
         # logic WIP
+        cart = elevator.get_elevator()
+        
+        if r_dir == cart.get_state():
+            if r_dir * cart.get_floor() < r_dir * r_floor:
+                # cart is going in the direction and is currently below
+                # the requsest floor
+                pass
+            else:
+                # same direction but the request floor has been missed
+                pass
+        elif r_dir == -1 * cart.get_state():
+            # cart is moving in the other direction
+            pass
+        
+        else:
+            # cart is currently idle
+            pass
+        
         return 0
