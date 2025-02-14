@@ -21,15 +21,18 @@ for i in range(1000):
     else:
         events.append(None)
 
+# events = [Request(3, 1, 5), Request(9, -1, 3), None, None, None, None, None, None, None]
+
 buffer = [None] * int(2.75 * len(events))
 events = events + buffer
-ES = Elevator_Simulator("fuzz", LO, HI)
+ES = Elevator_Simulator(LO, HI)
 
 
 
 for i in range(len(events)):
     ES.add_event(events[i])
     ES.step()
+    # input()
 
 print("Distance:", ES.get_distance())
 print("Final state:", ES.get_elevator().get_state())

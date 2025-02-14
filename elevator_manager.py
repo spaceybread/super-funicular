@@ -14,7 +14,7 @@ class Elevator_Manager:
         for elevator in self.elevators:
             elevator.step()
             
-    def push_request(self, request):
+    def get_best_elevator(self, request):
         c_floor, dir = request.get_initial_request()
 
         best = 2**32 - 1 # some large value
@@ -24,8 +24,8 @@ class Elevator_Manager:
         for i in range(len(self.elevators)):
             scores.append(compute_score(self.elevators[i], c_floor, dir))
             
-            if scores[-1] < best:
-                best = scores[-1]
+            if scores[-1][0] < best:
+                best = scores[-1][0]
                 idx = i
         
         print(scores) # for debugging
@@ -38,18 +38,23 @@ class Elevator_Manager:
         
         if r_dir == cart.get_state():
             if r_dir * cart.get_floor() < r_dir * r_floor:
-                # cart is going in the direction and is currently below
-                # the requsest floor
-                pass
+                return (abs(cart.get_floor() - r_floor), True)
             else:
                 # same direction but the request floor has been missed
                 pass
         elif r_dir == -1 * cart.get_state():
             # cart is moving in the other direction
+            ext = -1
+            targets = sorted(lis(televator.targets))
+            
+            if cart.get_state() == 1: ext = targets[-1]
+            else: ext = targets[0]
+            
+            return (abs(cart.get_floor() - ext) + abs(ext - r_floor), False)
+            
             pass
         
         else:
             # cart is currently idle
-            pass
+            return (abs(cart.get_floor() - r_floor), False)
         
-        return 0
